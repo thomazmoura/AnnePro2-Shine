@@ -3,6 +3,7 @@
 /*
  * STATIC
  */
+void white(led_t* currentKeyLedColors);
 void red(led_t* currentKeyLedColors);
 void green(led_t* currentKeyLedColors);
 void blue(led_t* currentKeyLedColors);
