@@ -31,6 +31,10 @@ void golden(led_t* currentKeyLedColors){
   setAllKeysColor(currentKeyLedColors, 0xFF9900);
 }
 
+void transparent(led_t* currentKeyLedColors){
+  setAllKeysColor(currentKeyLedColors, 0x000000);
+}
+
 void miamiNights(led_t* currentKeyLedColors){
   setAllKeysColor(currentKeyLedColors, 0x00979c);
   setModKeysColor(currentKeyLedColors, 0x9c008f);

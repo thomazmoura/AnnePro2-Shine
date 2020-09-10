@@ -11,6 +11,7 @@ void rainbowVertical(led_t* currentKeyLedColors);
 void miamiNights(led_t* currentKeyLedColors);
 void white(led_t* currentKeyLedColors);
 void golden(led_t* currentKeyLedColors);
+void transparent(led_t* currentKeyLedColors);
 
 /*
  * ANIMATED
