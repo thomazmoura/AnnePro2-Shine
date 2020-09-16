@@ -24,7 +24,7 @@ void blue(led_t* currentKeyLedColors){
 }
 
 void white(led_t* currentKeyLedColors){
-  setAllKeysColor(currentKeyLedColors, 0xFFFFBF);
+  setAllKeysColor(currentKeyLedColors, 0xDDFFCC);
 }
 
 void golden(led_t* currentKeyLedColors){

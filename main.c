@@ -87,10 +87,9 @@ ioline_t ledRows[NUM_ROW * 4] = {
  */
 typedef void (*profile)( led_t* );
 profile profiles[] = {
-  red, green, blue, rainbowHorizontal, rainbowVertical, 
+  transparent, red, green, blue, rainbowHorizontal, rainbowVertical, 
   animatedRainbowVertical, animatedRainbowWaterfall, 
-  animatedBreathing, animatedSpectrum, white, golden,
-  transparent
+  animatedBreathing, animatedSpectrum, white, golden
 };
 static uint8_t currentProfile = 0;
 static uint8_t amountOfProfiles = sizeof(profiles)/sizeof(profile);
