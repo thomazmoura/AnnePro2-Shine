@@ -35,6 +35,10 @@ void transparent(led_t* currentKeyLedColors){
   setAllKeysColor(currentKeyLedColors, 0x000000);
 }
 
+void solid(led_t* currentKeyLedColors, uint32_t color){
+  setAllKeysColor(currentKeyLedColors, color);
+}
+
 void miamiNights(led_t* currentKeyLedColors){
   setAllKeysColor(currentKeyLedColors, 0x00979c);
   setModKeysColor(currentKeyLedColors, 0x9c008f);
@@ -117,3 +121,4 @@ void animatedSpectrum(led_t* currentKeyLedColors){
   }
   spectrumValue += spectrumDirection;
 }
+

@@ -222,8 +222,10 @@ void setForeColor(){
 
   if(bytesRead == 4){
     if(commandBuffer[0] < amountOfProfiles){
-      color = commandBuffer[0] | commandBuffer[1] << 8 | commandBuffer[2] << 16;
-      setAllKeysColor(currentKeyLedColors, color);
+      uint32_t color = *(uint32_t*)&commandBuffer;
+      chSysLock();
+      solid(ledColors, color);
+      chSysUnlock();
     }
   }
 
