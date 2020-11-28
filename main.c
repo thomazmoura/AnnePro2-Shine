@@ -34,7 +34,6 @@ static void ledSet(void);
 static void ledSetRow(void);
 static void setProfile(void);
 static void setForeColor(void);
-static void resetForeColor(void);
 
 
 ioline_t ledColumns[NUM_COLUMN] = {
@@ -159,9 +158,6 @@ void executeMsg(msg_t msg){
     case CMD_LED_SET_FORECOLOR:
       setForeColor();
       break;
-    case CMD_LED_RESET_FORECOLOR:
-      resetForeColor();
-      break;
     case CMD_LED_NEXT_PROFILE:
       currentProfile = (currentProfile+1)%amountOfProfiles;
       executeProfile();
@@ -201,6 +197,7 @@ void changeMask(uint8_t mask) {
 /*
  * Set profile and execute it
  */
+bool is_forecolor_set = false;
 void setProfile(){
   size_t bytesRead;
   bytesRead = sdReadTimeout(&SD1, commandBuffer, 1, 10000);
@@ -208,6 +205,7 @@ void setProfile(){
   if(bytesRead == 1){
     if(commandBuffer[0] < amountOfProfiles){
       currentProfile = commandBuffer[0];
+      is_forecolor_set = false;
     }
   }
 
@@ -220,7 +218,6 @@ void setProfile(){
 /*
  * Set all the leds to the specified color
  */
-bool is_forecolor_set = false;
 uint32_t foreColor = 0x000000;
 void setForeColor(){
   size_t bytesRead;
@@ -239,16 +236,6 @@ void setForeColor(){
 }
 
 /*
- * Set all the leds to the specified color
- */
-void resetForeColor(){
-  chSysLock();
-  is_forecolor_set = false;
-  profiles[currentProfile](ledColors);
-  chSysUnlock();
-}
-
-/*
  * Switch to next profile and execute it
  */
 void switchProfile(){
@@ -261,11 +248,7 @@ void switchProfile(){
  */
 void executeProfile(){
   chSysLock();
-  if(!is_forecolor_set) {
-    profiles[currentProfile](ledColors);
-  } else {
-    setAllKeysColor(ledColors, foreColor);
-  }
+  setAllKeysColor(ledColors, foreColor);
   chSysUnlock();
 }
 
@@ -318,25 +301,32 @@ inline uint8_t min(uint8_t a, uint8_t b){
  * Update lighting table as per animation
  */
 void animationCallback(GPTDriver* _driver){
-  if(is_forecolor_set)
-    return;
-
   profile currentFunction = profiles[currentProfile];
   if(currentFunction == animatedRainbowVertical){
     gptChangeInterval(_driver, ANIMATION_TIMER_FREQUENCY/5);
-    currentFunction(ledColors);
+    if(!is_forecolor_set) {
+      currentFunction(ledColors);
+    }
   }else if(currentFunction == animatedRainbowWaterfall){
     gptChangeInterval(_driver, ANIMATION_TIMER_FREQUENCY/20);
-    currentFunction(ledColors);
+    if(!is_forecolor_set) {
+      currentFunction(ledColors);
+    }
   }else if(currentFunction == animatedRainbowFlow){
     gptChangeInterval(_driver, ANIMATION_TIMER_FREQUENCY/30);
-    currentFunction(ledColors);
+    if(!is_forecolor_set) {
+      currentFunction(ledColors);
+    }
   }else if(currentFunction == animatedSpectrum){
     gptChangeInterval(_driver, ANIMATION_TIMER_FREQUENCY/15);
-    currentFunction(ledColors);
+    if(!is_forecolor_set) {
+      currentFunction(ledColors);
+    }
   }else if(currentFunction == animatedBreathing){
     gptChangeInterval(_driver, ANIMATION_TIMER_FREQUENCY/30);
-    currentFunction(ledColors);
+    if(!is_forecolor_set) {
+      currentFunction(ledColors);
+    }
   }
 }
 
