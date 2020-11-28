@@ -33,6 +33,7 @@ static void enableLeds(void);
 static void ledSet(void);
 static void ledSetRow(void);
 static void setProfile(void);
+static void setForeColor(void);
 
 
 ioline_t ledColumns[NUM_COLUMN] = {
@@ -154,6 +155,9 @@ void executeMsg(msg_t msg){
     case CMD_LED_SET_PROFILE:
       setProfile();
       break;
+    case CMD_LED_SET_FORECOLOR:
+      setForeColor();
+      break;
     case CMD_LED_NEXT_PROFILE:
       currentProfile = (currentProfile+1)%amountOfProfiles;
       executeProfile();
@@ -200,6 +204,26 @@ void setProfile(){
   if(bytesRead == 1){
     if(commandBuffer[0] < amountOfProfiles){
       currentProfile = commandBuffer[0];
+    }
+  }
+
+  // set colors without turning on leds (if we have a saved profile off by default in eeprom)
+  chSysLock();
+  profiles[currentProfile](ledColors);
+  chSysUnlock();
+}
+
+/*
+ * Set all the leds to the specified color
+ */
+void setForeColor(){
+  size_t bytesRead;
+  bytesRead = sdReadTimeout(&SD1, commandBuffer, 4, 10000);
+
+  if(bytesRead == 4){
+    if(commandBuffer[0] < amountOfProfiles){
+      color = commandBuffer[0] | commandBuffer[1] << 8 | commandBuffer[2] << 16;
+      setAllKeysColor(currentKeyLedColors, color);
     }
   }
 
