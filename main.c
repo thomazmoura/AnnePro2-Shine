@@ -34,6 +34,7 @@ static void ledSet(void);
 static void ledSetRow(void);
 static void setProfile(void);
 static void setForeColor(void);
+static void resetForeColor(void);
 
 
 ioline_t ledColumns[NUM_COLUMN] = {
@@ -88,9 +89,9 @@ ioline_t ledRows[NUM_ROW * 4] = {
  */
 typedef void (*profile)( led_t* );
 profile profiles[] = {
-  transparent, red, green, blue, rainbowHorizontal, rainbowVertical, 
+  red, green, blue, rainbowHorizontal, rainbowVertical, 
   animatedRainbowVertical, animatedRainbowFlow, animatedRainbowWaterfall, 
-  animatedBreathing, animatedSpectrum, white, golden
+  animatedBreathing, animatedSpectrum
 };
 static uint8_t currentProfile = 0;
 static uint8_t amountOfProfiles = sizeof(profiles)/sizeof(profile);
@@ -158,6 +159,9 @@ void executeMsg(msg_t msg){
     case CMD_LED_SET_FORECOLOR:
       setForeColor();
       break;
+    case CMD_LED_RESET_FORECOLOR:
+      resetForeColor();
+      break;
     case CMD_LED_NEXT_PROFILE:
       currentProfile = (currentProfile+1)%amountOfProfiles;
       executeProfile();
@@ -216,21 +220,30 @@ void setProfile(){
 /*
  * Set all the leds to the specified color
  */
+bool is_forecolor_set = false;
+uint32_t foreColor = 0x000000;
 void setForeColor(){
   size_t bytesRead;
-  bytesRead = sdReadTimeout(&SD1, commandBuffer, 4, 10000);
+  bytesRead = sdReadTimeout(&SD1, commandBuffer, 3, 10000);
 
-  if(bytesRead == 4){
-    if(commandBuffer[0] < amountOfProfiles){
-      uint32_t color = *(uint32_t*)&commandBuffer;
-      chSysLock();
-      solid(ledColors, color);
-      chSysUnlock();
-    }
-  }
+  if(bytesRead >= 3)
+  {
+    uint8_t colorBytes[4] = {commandBuffer[2], commandBuffer[1], commandBuffer[0], 0x00};
+    foreColor = *(uint32_t*)&colorBytes;
+    is_forecolor_set = true;
 
-  // set colors without turning on leds (if we have a saved profile off by default in eeprom)
+    chSysLock();
+    setAllKeysColor(ledColors, foreColor);
+    chSysUnlock();
+  } 
+}
+
+/*
+ * Set all the leds to the specified color
+ */
+void resetForeColor(){
   chSysLock();
+  is_forecolor_set = false;
   profiles[currentProfile](ledColors);
   chSysUnlock();
 }
@@ -248,7 +261,11 @@ void switchProfile(){
  */
 void executeProfile(){
   chSysLock();
-  profiles[currentProfile](ledColors);
+  if(!is_forecolor_set) {
+    profiles[currentProfile](ledColors);
+  } else {
+    setAllKeysColor(ledColors, foreColor);
+  }
   chSysUnlock();
 }
 
@@ -301,6 +318,9 @@ inline uint8_t min(uint8_t a, uint8_t b){
  * Update lighting table as per animation
  */
 void animationCallback(GPTDriver* _driver){
+  if(is_forecolor_set)
+    return;
+
   profile currentFunction = profiles[currentProfile];
   if(currentFunction == animatedRainbowVertical){
     gptChangeInterval(_driver, ANIMATION_TIMER_FREQUENCY/5);
