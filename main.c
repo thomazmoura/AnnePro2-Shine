@@ -34,6 +34,7 @@ static void ledSet(void);
 static void ledSetRow(void);
 static void setProfile(void);
 static void setForeColor(void);
+static void resetForeColor(void);
 
 
 ioline_t ledColumns[NUM_COLUMN] = {
@@ -158,6 +159,9 @@ void executeMsg(msg_t msg){
     case CMD_LED_SET_FORECOLOR:
       setForeColor();
       break;
+    case CMD_LED_RESET_FORECOLOR:
+      resetForeColor();
+      break;
     case CMD_LED_NEXT_PROFILE:
       currentProfile = (currentProfile+1)%amountOfProfiles;
       executeProfile();
@@ -233,6 +237,14 @@ void setForeColor(){
     setAllKeysColor(ledColors, foreColor);
     chSysUnlock();
   } 
+}
+
+/*
+ * Reset the leds to the current profile
+ */
+void resetForeColor(){
+  is_forecolor_set = false;
+  executeProfile();
 }
 
 /*

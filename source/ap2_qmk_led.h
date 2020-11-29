@@ -12,3 +12,4 @@
 #define CMD_LED_SET_MASK                    0xA
 #define CMD_LED_CLEAR_MASK                  0xB
 #define CMD_LED_SET_FORECOLOR               0xC
+#define CMD_LED_RESET_FORECOLOR             0xD
