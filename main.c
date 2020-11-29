@@ -248,7 +248,7 @@ void switchProfile(){
  */
 void executeProfile(){
   chSysLock();
-  setAllKeysColor(ledColors, foreColor);
+  profiles[currentProfile](ledColors);
   chSysUnlock();
 }
 
